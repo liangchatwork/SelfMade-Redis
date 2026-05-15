@@ -6,6 +6,7 @@
 #include <ws2tcpip.h>
 
 #include "server.h"
+#include "command.h"
 
 #define BUFFER_SIZE 1024
 
@@ -17,6 +18,7 @@ int start_server(int port) {
     struct sockaddr_in server_addr;
     struct sockaddr_in client_addr;
 
+    int client_addr_len;
     char buffer[BUFFER_SIZE];
 
     // Windows socket 使用前必須初始化 Winsock
@@ -58,7 +60,7 @@ int start_server(int port) {
     printf("Server is listening on port %d...\n", port);
 
     while (1) {
-        int client_addr_len = sizeof(client_addr);
+        client_addr_len = sizeof(client_addr);
 
         // accept() 會卡在這裡，直到有 client 連進來
         client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
@@ -90,21 +92,20 @@ int start_server(int port) {
 
             printf("Received from client: %s\n", buffer);
 
-            // 移除換行符號，避免 PING\r\n 比對失敗
-            buffer[strcspn(buffer, "\r\n")] = 0;
+            char response[BUFFER_SIZE];
 
-            if (strcmp(buffer, "PING") == 0) {
-                send(client_fd, "PONG\r\n", 6, 0);
-            } else if (strcmp(buffer, "QUIT") == 0) {
-                send(client_fd, "BYE\r\n", 5, 0);
+            int should_close = handle_command(buffer, response, BUFFER_SIZE);
+
+            send(client_fd, response, strlen(response), 0);
+
+            if (should_close) {
                 break;
-            } else {
-                send(client_fd, "UNKNOWN COMMAND\r\n", 17, 0);
             }
         }
 
         closesocket(client_fd);
     }
+
     closesocket(server_fd);
     WSACleanup();
 

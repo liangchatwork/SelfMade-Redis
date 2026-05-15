@@ -4,7 +4,9 @@ CFLAGS = -Wall -Wextra -Iinclude
 TARGET = selfmade-redis.exe
 
 SRC = src/main.c \
-      src/network/server.c
+      src/network/server.c \
+      src/storage/storage.c \
+      src/core/command.c
 
 LIBS = -lws2_32
 
