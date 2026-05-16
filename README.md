@@ -1,29 +1,13 @@
+````md
 # Selfmade Redis
 
 ## Introduction
 
 Selfmade Redis is a systems-heavy Redis-inspired in-memory database server built from scratch in C, focused on low-level systems programming, networking, memory management, and database internals.
 
-This project explores core computer science and backend system concepts including:
+Rather than fully replicating Redis, the goal of this project is to gradually design and implement a lightweight Redis-like database while exploring how real database systems work internally.
 
-* TCP socket programming
-* Client-server architecture
-* Command parsing
-* Dynamic memory management
-* Data structures
-* Event-driven systems
-* Persistence mechanisms
-* OS interaction and low-level programming
-
-Rather than fully replicating Redis, the goal of this project is to gradually design and implement a lightweight Redis-like database while gaining hands-on experience with systems-level development, memory allocation, networking internals, and database architecture.
-
----
-
-## Project Goals
-
-This project is designed to go beyond a simple socket programming demo.
-
-The long-term objective is to build a Redis-inspired system that combines:
+The project combines:
 
 * Systems Programming
 * Data Structures
@@ -31,17 +15,6 @@ The long-term objective is to build a Redis-inspired system that combines:
 * Networking
 * Database Internals
 * Event-driven Architecture
-
-The project will gradually evolve from a basic TCP server into a more advanced educational systems project featuring:
-
-* Custom hash table implementation
-* Dynamic memory allocation
-* Event loop architecture
-* Binary persistence
-* RESP protocol parsing
-* Custom memory allocator
-* OS abstraction layer
-* Syscall-level experimentation
 
 ---
 
@@ -51,70 +24,53 @@ The project will gradually evolve from a basic TCP server into a more advanced e
 
 ### Implemented Features
 
+#### Networking
 * TCP socket server
 * Winsock initialization
 * Client connection handling
 * Continuous command loop
-* Basic command parsing
-* `PING -> PONG`
+
+#### String Commands
+* `PING`
 * `QUIT`
 * `SET`
 * `GET`
 * `DEL`
 * `EXISTS`
-* In-memory key-value storage
-* Modular project architecture
+* `STRLEN`
+* `APPEND`
+* `INCR`
+* `DECR`
+* `KEYS`
+* `FLUSHALL`
 
-### Planned Features
+#### List Commands
+* `LPUSH`
+* `RPUSH`
+* `LPOP`
+* `RPOP`
+* `LRANGE`
 
-* Custom linked-list storage nodes
-* Dynamic heap allocation
+#### Systems & Memory
 * Custom hash table
+* Linked-list storage
 * Collision handling
-* TTL expiration
-* Event loop (`select`)
-* Multiple client support
-* Binary persistence system
-* RESP protocol parser
-* Memory usage statistics
-* Custom allocator (`jm_malloc`)
-* OS abstraction layer
-* Syscall-level modules
+* Dynamic heap allocation
+* `jm_malloc`
+* `jm_free`
+* `jm_strdup`
+* Memory tracking
+* Leak detection basics
 
 ---
 
 ## Tech Stack
 
-### Language
-
-![C](https://img.shields.io/badge/C-00599C?style=for-the-badge\&logo=c\&logoColor=white)
-
----
-
-### Networking & Systems
-
-![Winsock2](https://img.shields.io/badge/Winsock2-0078D6?style=for-the-badge\&logo=windows\&logoColor=white)
+![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
+![Winsock2](https://img.shields.io/badge/Winsock2-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 ![TCP/IP](https://img.shields.io/badge/TCP/IP-323330?style=for-the-badge)
-![Socket Programming](https://img.shields.io/badge/Socket_Programming-1E1E1E?style=for-the-badge)
-![Systems Programming](https://img.shields.io/badge/Systems_Programming-222222?style=for-the-badge)
-
----
-
-### Data Structures
-
-![Hash Table](https://img.shields.io/badge/Hash_Table-00599C?style=for-the-badge)
-![Linked List](https://img.shields.io/badge/Linked_List-444444?style=for-the-badge)
-![Memory Management](https://img.shields.io/badge/Memory_Management-8A2BE2?style=for-the-badge)
-
----
-
-### Development Tools
-
-![GCC](https://img.shields.io/badge/GCC-FF6C37?style=for-the-badge\&logo=gnu\&logoColor=white)
-![MinGW](https://img.shields.io/badge/MinGW-000000?style=for-the-badge)
+![GCC](https://img.shields.io/badge/GCC-FF6C37?style=for-the-badge&logo=gnu&logoColor=white)
 ![Makefile](https://img.shields.io/badge/Makefile-064F8C?style=for-the-badge)
-![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge\&logo=git\&logoColor=white)
-![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge\&logo=github\&logoColor=white)
 
 ---
 
@@ -143,28 +99,56 @@ selfmade-redis/
 ├── docs/
 ├── examples/
 └── Makefile
-```
+````
 
 ---
 
 ## Current Commands
 
+### String Commands
+
 ```bash
 PING
 QUIT
+
 SET key value
 GET key
 DEL key
 EXISTS key
+
+STRLEN key
+APPEND key value
+
+INCR key
+DECR key
+
+KEYS
+FLUSHALL
 ```
 
-Example:
+### List Commands
+
+```bash
+LPUSH key value
+RPUSH key value
+
+LPOP key
+RPOP key
+
+LRANGE key
+```
+
+---
+
+## Example Usage
+
+### String Example
 
 ```bash
 SET name Jerry
 GET name
-EXISTS name
-DEL name
+APPEND name Chen
+GET name
 ```
 
 Expected Output:
@@ -172,13 +156,31 @@ Expected Output:
 ```bash
 OK
 Jerry
-1
 OK
+JerryChen
 ```
 
 ---
 
-## Usage
+### List Example
+
+```bash
+LPUSH nums 1
+LPUSH nums 2
+RPUSH nums 3
+
+LRANGE nums
+```
+
+Expected Output:
+
+```bash
+2 1 3
+```
+
+---
+
+## Build & Run
 
 ### Compile
 
@@ -194,7 +196,7 @@ make
 
 ### Connect to Server
 
-Example using `ncat`:
+Using `ncat`:
 
 ```bash
 ncat 127.0.0.1 6379
@@ -202,18 +204,20 @@ ncat 127.0.0.1 6379
 
 ---
 
-## Current Architecture
+## Internal Architecture
 
-The project is currently separated into modular layers:
+The project is separated into modular layers to simulate a real database architecture.
 
 ### `server.c`
 
 Responsible for:
 
-* TCP server setup
-* Socket handling
+* TCP socket setup
 * Client connections
-* Receiving and sending data
+* Sending and receiving data
+* Network loop
+
+---
 
 ### `command.c`
 
@@ -221,17 +225,105 @@ Responsible for:
 
 * Command parsing
 * Command dispatching
+* Request handling
 * Response generation
+
+Example:
+
+```c
+if (strcmp(command, "PING") == 0) {
+    snprintf(response, response_size, "PONG\r\n");
+}
+```
+
+---
 
 ### `storage.c`
 
 Responsible for:
 
-* In-memory key-value storage
-* Data lookup
-* Data insertion and deletion
+* In-memory storage
+* Hash table management
+* Linked-list operations
+* Key lookup
+* Dynamic memory handling
 
-This architecture is intentionally designed to support future expansion toward more advanced systems-level components.
+Example:
+
+```c
+typedef struct KVNode {
+
+    char *key;
+
+    ValueType type;
+
+    void *value;
+
+    struct KVNode *next;
+
+} KVNode;
+```
+
+---
+
+### `memory.c`
+
+Responsible for:
+
+* Custom memory tracking
+* Heap allocation monitoring
+* Allocation metadata
+* Leak detection basics
+
+Example:
+
+```c
+typedef struct MemoryHeader {
+    size_t size;
+} MemoryHeader;
+```
+
+---
+
+## Data Structure Design
+
+### Hash Table
+
+The database internally uses a custom hash table:
+
+```txt
+key
+ ↓
+hash_function()
+ ↓
+bucket index
+ ↓
+linked list traversal
+```
+
+Collision handling currently uses:
+
+* Separate Chaining
+* Linked List Buckets
+
+---
+
+### Redis-like Object System
+
+Each key stores a type-aware object:
+
+```c
+typedef enum {
+    TYPE_STRING,
+    TYPE_LIST
+} ValueType;
+```
+
+This allows future expansion toward:
+
+* Sets
+* Hashes
+* Sorted Sets
 
 ---
 
@@ -253,30 +345,37 @@ This architecture is intentionally designed to support future expansion toward m
 * [x] `GET`
 * [x] `DEL`
 * [x] `EXISTS`
-* [x] In-memory storage
 * [x] Command parser layer
 * [x] Storage layer
 
 ---
 
-### Phase 3 — Dynamic Memory & Data Structures
+### Phase 3 — Dynamic Memory & Data Structures 🚧
 
-* [ ] Linked list nodes
-* [ ] Dynamic heap allocation
-* [ ] Pointer-based storage
-* [ ] Custom hash table
-* [ ] Collision handling
+* [x] Linked-list storage
+* [x] Pointer-based storage
+* [x] Custom hash table
+* [x] Collision handling
+* [x] Redis-like object system
+* [x] `TYPE_STRING`
+* [x] `TYPE_LIST`
+* [x] List commands
 * [ ] Rehashing
+* [ ] Dynamic resize
+* [ ] Doubly linked list
 
 ---
 
-### Phase 4 — Systems Memory Layer
+### Phase 4 — Systems Memory Layer 🚧
 
-* [ ] `jm_malloc`
-* [ ] `jm_free`
-* [ ] Memory tracking
-* [ ] Memory statistics
-* [ ] Leak detection
+* [x] `jm_malloc`
+* [x] `jm_free`
+* [x] `jm_strdup`
+* [x] Allocation metadata
+* [x] Memory tracking
+* [x] Leak detection basics
+* [ ] `jm_realloc`
+* [ ] Memory pool allocator
 
 ---
 
@@ -305,11 +404,14 @@ This architecture is intentionally designed to support future expansion toward m
 
 ---
 
-### Phase 8 — OS / Syscall Layer
+### Phase 8 — OS / Syscall Layer 🚧
 
-* [ ] OS abstraction layer
+* [x] Basic OS abstraction layer
 * [ ] Syscall experimentation
 * [ ] Platform-specific wrappers
+* [ ] `VirtualAlloc`
+* [ ] `mmap`
+* [ ] `epoll`
 
 ---
 
@@ -317,4 +419,7 @@ This architecture is intentionally designed to support future expansion toward m
 
 This project is intended for educational and learning purposes.
 
-The project intentionally focuses on systems programming concepts, internal database mechanisms, and low-level software architecture rather than production-ready performance or full Redis compatibility.
+The project intentionally focuses on systems programming concepts, database internals, memory management, and low-level architecture rather than production-ready Redis compatibility.
+
+```
+```
